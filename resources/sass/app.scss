@@ -1,0 +1,20 @@
+// Fonts
+$fa-font-path:        "../webfonts";
+
+// Variables
+@import 'variables';
+
+// Bootstrap
+@import '~bootstrap/scss/bootstrap';
+
+//admin-lte
+@import '~admin-lte/dist/css/adminlte.css';
+
+//fontawesome
+@import "~@fortawesome/fontawesome-free/scss/fontawesome";
+@import "~@fortawesome/fontawesome-free/scss/solid";
+@import "~@fortawesome/fontawesome-free/scss/brands";
+@import "~@fortawesome/fontawesome-free/scss/regular";
+
+//datatable
+@import "~datatables.net-bs4/css/dataTables.bootstrap4.css";
