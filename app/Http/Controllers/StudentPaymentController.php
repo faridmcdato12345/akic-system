@@ -64,13 +64,16 @@ class StudentPaymentController extends Controller
         $query = Student::with('fines')->where('id',$student->id)->get();
         
         foreach ($query as $q) {
-            $option = '';
+            $tr = '';
             foreach($q->fines as $fines){
-                
-                $option .= '<option value="'.$fines->id.'">'.$fines->name.'</option>';
+                $tr .= '<tr>';
+                $tr .= '<td value="'.$fines->id.'" class="fine-name">'.$fines->name.'</td>';
+                $tr .= '<td value="'.$fines->id.'" class="fine-amount">'.$fines->amount.'</td>';
+                $tr .= '<td value="'.$fines->id.'" class="fine-action"><input type="checkbox" id="fine-'.$fines->id.'" name="fines" value="'.$fines->id.'"></td>';
+                $tr .= '</tr>';
             }
         }
-        return response()->json(['data' => $query, 'option' => $option, 'student_id' => $student->id],200);
+        return response()->json(['data' => $query, 'tr' => $tr, 'student_id' => $student->id],200);
     }
     public function payFines(Student $student,Request $request){
         $query = $student->fines()->detach($request->fines_id);

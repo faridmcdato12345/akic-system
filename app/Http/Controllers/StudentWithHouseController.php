@@ -7,6 +7,7 @@ use App\Models\Student;
 use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class StudentWithHouseController extends Controller
 {
@@ -37,7 +38,9 @@ class StudentWithHouseController extends Controller
                     if(is_null($z->deleted_at)){
                         $x .= '<div id="'.$row->id.'" class="house-container" style="display:inline;margin-right:2px;">';
                         $x .= '<label class="badge badge-success">'.$z->name.'</label>';
-                        $x .= '<div class="btn-danger close-button" id="'.$z->id.'"><span>x</span></div>';
+                        if(Auth::user()->role == 'Admin'){
+                            $x .= '<div class="btn-danger close-button" id="'.$z->id.'"><span>x</span></div>';
+                        }
                         $x .= '</div>';
                     }
                 }
