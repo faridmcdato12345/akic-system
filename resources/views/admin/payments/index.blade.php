@@ -27,6 +27,13 @@
             cursor: pointer;
             background: #f9f9f9;
         }
+        #fines-table{
+            color: black;
+        }
+        #select-fine .form-group{
+            background-color: #fff;
+        }
+
     </style>
 @endsection
 @section('content')
@@ -44,7 +51,9 @@
                             <th>Department</th>
                             <th>Course</th>
                             <th>Fines</th>
+                            @if(Auth::user()->role === 'Cashier')
                             <th>Action</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -67,17 +76,23 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="fines">Fines:</label>
-                    <select name="fines" id="fine_id" class="form-control">
+                    <table class="table" id="fines-table">
+                        <thead>
+                            <tr>
+                                <th>Fines</th>
+                                <th>Amount</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
 
-                    </select>
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <div class="modal-footer">
-                <div class="form-group">
-                    <input type="submit" value="Pay" class="btn btn-primary paid_submit">
-                    <button class="btn btn-danger" data-dismiss="modal">Close</button>
-                </div>
+                <button type="button" class="btn btn-primary paid-fines">Pay</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -86,21 +101,39 @@
 @section('scripts')
 <script>
     $(document).ready(function(){
-        $('#student-datatable').DataTable({
-            "processing": true,
-            "serverSide": true,
-            "ajax": "{{route('student.payment.get')}}",
-            "columns": [
-                { "data": "firstname" },
-                { "data": "department" },
-                { "data": "course" },
-                { "data": 'fines'},
-                { "data": 'action'},
-            ],
-            "pageLength" : 5,
-            "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, 'Todos']],
-            "order": [ [0, 'desc'] ]
-        });
+        var l = "{{Auth::user()->role}}"
+        if(l === 'Cashier'){
+            $('#student-datatable').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": "{{route('student.payment.get')}}",
+                "columns": [
+                    { "data": "firstname" },
+                    { "data": "department" },
+                    { "data": "course" },
+                    { "data": 'fines'},
+                    { "data": 'action'},
+                ],
+                "pageLength" : 5,
+                "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, 'Todos']],
+                "order": [ [0, 'desc'] ]
+            });
+        }else{
+            $('#student-datatable').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": "{{route('student.payment.get')}}",
+                "columns": [
+                    { "data": "firstname" },
+                    { "data": "department" },
+                    { "data": "course" },
+                    { "data": 'fines'},
+                ],
+                "pageLength" : 5,
+                "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, 'Todos']],
+                "order": [ [0, 'desc'] ]
+            });
+        }
     })
     /** show the fines of each student **/
     $(document).on('click','.select-btn',function(){
@@ -115,7 +148,7 @@
                 console.log(data)
                 console.log(data.data[0].fines)
                 let fines = data.data[0].fines
-                $('#fine_id').html(data.option)
+                $('#fines-table tbody').html(data.tr)
                 $('#select-fine').modal('show')
                 $('.stud_id').val(data.student_id)
             },
@@ -125,7 +158,11 @@
         })
     })
     /** student paid **/
-    $(document).on('click','.paid_submit',function(){
+    $(document).on('click','.paid-fines',function(){
+        var fines = []
+        $("input:checkbox[name=fines]:checked").each(function(){
+            fines.push($(this).val());
+        });
         let url = "{{route('student_payment.pay.fines',':id')}}"
         let urlUpdate = url.replace(':id',$('.stud_id').val())
         $.ajax({
@@ -133,9 +170,10 @@
             method: "post",
             dataType: "json",
             data: {
-                fines_id: $('#fine_id').find(':selected').val()
+                fines_id: fines
             },
             success: function(data){
+                console.log("fines-db: " + data)
                 $('#select-fine').modal('hide')
                 Toast.fire({
                     icon: 'success',
@@ -148,5 +186,6 @@
             }
         })
     })
+    
 </script>
 @endsection
